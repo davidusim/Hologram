@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hologram Design Document</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;500&display=swap">
+    <style>
+        :root {
+            --bg-light: #ffffff;
+            --fg-light: #1a1a1a;
+            --accent-light: #00ffff;
+            --bg-dark: #0a0a0a;
+            --fg-dark: #e0e0e0;
+            --accent-dark: #00ffff;
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Roboto', sans-serif;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: var(--bg-dark);
+                --fg: var(--fg-dark);
+                --accent: var(--accent-dark);
+            }
+        }
+
+        [data-theme="light"] {
+            --bg: var(--bg-light);
+            --fg: var(--fg-light);
+            --accent: var(--accent-light);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--fg);
+            font-family: var(--font-body);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-display);
+            color: var(--accent);
+            margin-bottom: 1rem;
+            text-wrap: balance;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight {
+            background-color: rgba(0, 255, 255, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--accent), transparent);
+            margin: 3rem 0;
+        }
+
+        .code-block {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--fg);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hologram Design Document</h1>
+        <p><em>A detailed approach to creating a Pepper's ghost hologram display using software and accessible hardware.</em></p>
+
+        <div class="section-divider"></div>
+
+        <section>
+            <h2>1. Type of Hologram</h2>
+            <p>We propose implementing a <strong>Pepper's ghost</strong> hologram using a four-sided pyramid configuration. This technique creates the illusion of a floating 3D object by reflecting images off transparent surfaces at specific angles. The pyramid allows for 360-degree viewing, making the hologram visible from all sides.</p>
+            <p>Pepper's ghost was chosen because:</p>
+            <ul>
+                <li>It requires only commonly available materials (transparent acrylic, monitor/smartphone)</li>
+                <li>The optical principle is well-understood and reliable</li>
+                <li>It can produce convincing 3D effects without specialized holographic film or lasers</li>
+                <li>The software implementation is feasible with standard 3D rendering libraries</li>
+            </ul>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section>
+            <h2>2. Required Hardware/Components</h2>
+            <p>The hologram system consists of the following components:</p>
+            <ul>
+                <li><strong>Display Device</strong>: A monitor, tablet, or smartphone screen capable of displaying bright, high-contrast images. Ideally, a device with high brightness and good viewing angles.</li>
+                <li><strong>Transparent Pyramid</strong>: Four trapezoidal pieces of clear acrylic or glass (typically 3mm thickness) joined to form a frustum (pyramid with the top cut off). Each trapezoid has specific dimensions based on the desired hologram size and viewing distance.</li>
+                <li><strong>Optional Enclosure</strong>: A dark box or hood to place over the pyramid and screen, reducing ambient light and enhancing contrast.</li>
+                <li><strong>Mounting Structure</strong>: A simple stand to position the pyramid above the screen at the correct angle (typically 45 degrees).</li>
+            </ul>
+            <p><strong>Pyramid Dimensions (example for a 10cm tall hologram):</strong></p>
+            <ul>
+                <li>Top width: 1cm</li>
+                <li>Bottom width: 6cm</li>
+                <li>Height: 10cm</li>
+                <li>Each trapezoidal face is identical</li>
+            </ul>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section>
+            <h2>3. Software Architecture and Algorithms</h2>
+            <h3>Overview</h2>
+            <p>The software renders a 3D scene from four distinct viewpoints (corresponding to the four faces of the pyramid) and combines them into a single distorted image that, when reflected by the pyramid, appears as a coherent 3D hologram.</p>
+
+            <h3>Architecture Components</h3>
+            <ul>
+                <li><strong>3D Scene Manager</strong>: Handles loading, updating, and managing 3D models, animations, and lighting.</li>
+                <li><strong>Multi-Camera Rig</strong>: Four virtual cameras positioned at 0°, 90°, 180°, and 270° around the Y-axis, each looking at the scene center from a distance equal to the pyramid's dimensions.</li>
+                <li><strong>Render-to-Texture Pass</strong>: Each camera renders the scene to an off-screen texture (render target).</li>
+                <li><strong>Distortion Shader</strong>: Applies a trapezoidal distortion to each camera's output to match the pyramid face geometry.</li>
+                <li><strong>Compositor</strong>: Combines the four distorted textures into a single image arranged for the pyramid layout.</li>
+                <li><strong>Display Output</strong>: Sends the final image to the monitor/screen.</li>
+            </ul>
+
+            <h3>Algorithm Flow</h3>
+            <ol>
+                <li>Initialize 3D scene with objects, lights, and materials.</li>
+                <li>For each frame:
+                    <ol>
+                        <li>Update scene animations/objects if needed.</li>
+                        <li>For each of the four cameras:
+                            <ol>
+                                <li>Set camera position and orientation.</li>
+                                <li>Render scene to off-screen texture.</li>
+                                <li>Apply trapezoidal distortion via shader.</li>
+                            </ol>
+                        </li>
+                        <li>Combine the four distorted textures into a single viewport (typically arranged as four quadrants, each distorted to a trapezoid).</li>
+                        <li>Output the combined image to the display.</li>
+                    </ol>
+                </li>
+            </ol>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section>
+            <h2>4. Programming Language and Libraries</h2>
+            <p>We recommend using <strong>JavaScript</strong> with the <strong>Three.js</strong> library for the following reasons:</p>
+            <ul>
+                <li>Three.js provides a robust, easy-to-use 3D rendering engine with WebGL fallback.</li>
+                <li>JavaScript allows the hologram program to run in any modern web browser, making it accessible and easy to share.</li>
+                <li>The browser environment simplifies handling of display resolutions and full-screen modes.</li>
+                <li>Three.js supports render-to-texture, custom shaders, and post-processing effects needed for the distortion.</li>
+            </ul>
+            <p><strong>Key Libraries:</strong></p>
+            <ul>
+                <li><a href="https://threejs.org/" target="_blank">Three.js</a> (r152 or later) - Core 3D rendering</li>
+                <li><a href="https://github.com/mrdoob/three.js/tree/master/examples/js/postprocessing" target="_blank">Three.js PostProcessing</a> - For effect compositing (optional)</li>
+                <li><a href="https://github.com/gre/gsap" target="_blank">GSAP</a> (GreenSock) - For smooth animations (optional)</li>
+            </ul>
+            <p><strong>Alternative Options:</strong></p>
+            <ul>
+                <li>C++ with OpenGL/SFML for maximum performance (more complex deployment)</li>
+                <li>Python with Pygame and PyOpenGL (good for prototyping but browser deployment harder)</li>
+                <li>Unity3D (powerful but requires export to WebGL for accessibility)</li>
+            </ul>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section>
+            <h2>5. Key Mathematical Formulas and Processes</h2>
+            <h3>Camera Setup</h3>
+            <p>For a pyramid with height <span class="highlight">h</span> and bottom width <span class="highlight">w</span>, the cameras are positioned at:</p>
+            <div class="code-block">
+                // Camera distance from center (adjust based on pyramid dimensions)
+                const radius = w / 2 + h; // Empirical starting point
+
+                // Four cameras at 0°, 90°, 180°, 270° around Y-axis
+                for (let i = 0; i < 4; i++) {
+                    const angle = (i * Math.PI / 2); // 0, π/2, π, 3π/2
+                    camera.position.set(
+                        radius * Math.sin(angle),
+                        h / 2, // Height at pyramid midline
+                        radius * Math.cos(angle)
+                    );
+                    camera.lookAt(0, h / 2, 0); // Look at center of pyramid
+                }
+            </div>
+
+            <h3>Trapezoidal Distortion Mapping</h3>
+            <p>Each camera's rectangular output must be mapped to a trapezoidal shape matching the pyramid face. For a face with:</p>
+            <ul>
+                <li>Top width: <span class="highlight">a</span></li>
+                <li>Bottom width: <span class="highlight">b</span></li>
+                <li>Height: <span class="highlight">h</span></li>
+            </ul>
+            <p>The vertical position <span class="highlight">y'</span> in the trapezoid for a given source y-coordinate (0 to 1) is:</p>
+            <div class="code-block">
+                // y' ranges from 0 (top) to h (bottom)
+                // Source y ranges from 0 (top) to 1 (bottom) of camera texture
+                const widthAtY = a + (b - a) * (y' / h);
+                // Horizontal position x' for a given source x (0 to 1) centers within widthAtY
+                const x' = (x - 0.5) * widthAtY + 0.5 * b; // Adjust for bottom alignment
+            </div>
+            <p>In practice, this distortion is implemented as a fragment shader that computes the source UV coordinates for each destination pixel.</p>
+
+            <h3>Shader Pseudocode (GLSL)</h3>
+            <div class="code-block">
+                uniform sampler2D cameraTexture; // Rendered view from one camera
+                varying vec2 vUv; // Standard quad UV (0 to 1)
+
+                // Trapezoid parameters (adjust per pyramid face)
+                const float topWidth = 0.2;   // Normalized top width
+                const float bottomWidth = 0.8; // Normalized bottom width
+                const float height = 1.0;     // Normalized height
+
+                void main() {
+                    // vUv.y goes from 0 (top) to 1 (bottom)
+                    float y = vUv.y * height;
+                    float widthAtY = topWidth + (bottomWidth - topWidth) * (y / height);
+
+                    // Center the width
+                    float xOffset = (vUv.x - 0.5) * widthAtY;
+
+                    // Map to texture coordinates (assuming texture covers full width)
+                    vec2 sourceUV = vec2(
+                        0.5 + xOffset / bottomWidth, // Scale to [0,1] range
+                        vUv.y
+                    );
+
+                    gl_FragColor = texture2D(cameraTexture, sourceUV);
+                }
+            </div>
+
+            <h3>Combining Four Views</h3>
+            <p>The final display arranges the four distorted textures as follows:</p>
+            <div class="code-block">
+                // Assuming screen width = W, height = H
+                // Each view occupies a quadrant, but distorted to trapezoid
+                // Top-left:   Camera 0 (0° view)
+                // Top-right:  Camera 1 (90° view)
+                // Bottom-left: Camera 2 (180° view)
+                // Bottom-right: Camera 3 (270° view)
+
+                // In practice, this is done by rendering each distorted texture
+                // to the correct quadrant of the final output, or by using
+                // a single shader that samples all four textures with appropriate UV offsets.
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section>
+            <h2>Conclusion</h2>
+            <p>This design provides a practical pathway to creating a convincing hologram display using accessible hardware and open-source software. The Pepper's ghost pyramid approach balances visual impact with implementation feasibility, allowing users to experience 3D holograms without specialized equipment.</p>
+            <p>Next steps would involve prototyping the software with a simple 3D model (e.g., a rotating cube) and refining the pyramid dimensions and camera parameters through experimentation.</p>
+        </section>
+    </div>
+
+    <footer class="footer">
+        Hologram Design Document • Created with Claude Code • 2026-09-29
+    </footer>
+</body>
+</html>
